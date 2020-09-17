@@ -178,7 +178,7 @@ static void dispatcher(task_switch_type_e type)
 
 	for(uint8_t i = 0; i < task_list.nTasks; i++)
 	{
-		if(maxPriority < task_list.tasks[i].priority )//&& (S_READY == task_list.tasks[i].state || S_RUNNING == task_list.tasks[i].state))
+		if(maxPriority < task_list.tasks[i].priority && (S_READY == task_list.tasks[i].state || S_RUNNING == task_list.tasks[i].state))
 		{
 			maxPriority = task_list.tasks[i].priority;
 			next_task = i;
@@ -204,7 +204,7 @@ FORCE_INLINE static void context_switch(task_switch_type_e type)
 		if(kFromNormalExec == type)
 		{
 			task_list.tasks[task_list.current_task].sp -= (7);
-			task_list.tasks[task_list.current_task].state = S_READY;
+			//task_list.tasks[task_list.current_task].state = S_READY;
 		}
 		else
 		{
