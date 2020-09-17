@@ -103,11 +103,10 @@ void rtos_start_scheduler(void)
 	task_list.current_task = -1;
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk
 	        | SysTick_CTRL_ENABLE_Msk;
-
+	reload_systick();
 	rtos_create_task(idle_task,0,kAutoStart);
 	NVIC_SetPriority(PendSV_IRQn, 0xFF);
-	reload_systick();
-//	  PRINTF("RTOS Init\n\r");
+	//reload_systick();
 	for (;;)
 		;
 }
@@ -139,7 +138,7 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,
 
 rtos_tick_t rtos_get_clock(void)
 {
-	return CPU_XTAL_CLK_HZ;
+	return task_list.global_tick;
 }
 
 void rtos_delay(rtos_tick_t ticks)
@@ -174,38 +173,19 @@ static void reload_systick(void)
 
 static void dispatcher(task_switch_type_e type)
 {
-	uint8_t nextTask = task_list.nTasks-1;
-	uint8_t findNextTask = 0;
-	uint8_t foundNextTask = 0;
-	uint8_t current_priority = 2;
+	rtos_task_handle_t next_task = task_list.nTasks-1;
+	 uint8_t maxPriority = 0;
 
-	for(findNextTask = 0; foundNextTask == 0; findNextTask++)
+	for(uint8_t i = 0; i < task_list.nTasks; i++)
 	{
-		if(findNextTask > task_list.nTasks)
+		if(maxPriority < task_list.tasks[i].priority )//&& (S_READY == task_list.tasks[i].state || S_RUNNING == task_list.tasks[i].state))
 		{
-			findNextTask = 0;
-			current_priority--;
-		}
-		if(current_priority <0)//> task_list.tasks[task_list.nTasks].priority)
-		{
-			current_priority = 0;
-		}
-		if(current_priority == task_list.tasks[findNextTask].priority)
-		{
-			if (S_READY == task_list.tasks[findNextTask].state
-				|| S_RUNNING == task_list.tasks[findNextTask].state)
-			{
-				nextTask = findNextTask;
-
-				foundNextTask = 1;
-			}
-		/*	else if (findNextTask == task_list.current_task)
-			{
-				foundNextTask = 1;
-			}*/
+			maxPriority = task_list.tasks[i].priority;
+			next_task = i;
 		}
 	}
-	task_list.next_task = nextTask;
+
+	task_list.next_task = next_task;
 	if(task_list.next_task != task_list.current_task)
 	{
 		context_switch(kFromNormalExec);
@@ -237,8 +217,7 @@ FORCE_INLINE static void context_switch(task_switch_type_e type)
 	}
 	task_list.current_task = task_list.next_task;
 	task_list.tasks[task_list.current_task].state = S_RUNNING;
-	//PendSV_Handler();
-	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // Set PendSV to pending
+	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
 
 static void activate_waiting_tasks()
@@ -275,10 +254,11 @@ static void idle_task(void)
 
 void SysTick_Handler(void)
 {
-	task_list.global_tick++;
+
 #ifdef RTOS_ENABLE_IS_ALIVE
 	refresh_is_alive();
 #endif
+	task_list.global_tick++;
 	activate_waiting_tasks();
 	reload_systick();
 	dispatcher(kFromISR);
