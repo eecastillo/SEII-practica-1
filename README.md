@@ -1,19 +1,20 @@
 # SEII-practica-1
+```
 void rtos_start_scheduler(void)
 {
 	task_list.global_tick = 0;
 	task_list.current_task = -1;
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk
-	        | SysTick_CTRL_ENABLE_Msk;
+		| SysTick_CTRL_ENABLE_Msk;
 	reload_systick();
 	rtos_create_task(idle_task,0,kAutoStart);
 	//reload_systick();
 	for (;;)
 		;
 }
-
-rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,
-		rtos_autostart_e autostart)
+```
+```
+rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,rtos_autostart_e autostart)
 {
 	if(RTOS_MAX_NUMBER_OF_TASKS > task_list.nTasks)
 	{
@@ -36,31 +37,36 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,
 	}
 	return -1;
 }
-
+```
+```
 rtos_tick_t rtos_get_clock(void)
 {
 	return task_list.global_tick;
 }
-
+```
+```
 void rtos_delay(rtos_tick_t ticks)
 {
 	task_list.tasks[task_list.current_task].state = S_WAITING;
 	task_list.tasks[task_list.current_task].local_tick = ticks;
 	dispatcher(kFromNormalExec);
 }
-
+```
+```
 void rtos_suspend_task(void)
 {
 	task_list.tasks[task_list.current_task].state = S_SUSPENDED;
 	dispatcher(kFromNormalExec);
 }
-
+```
+```
 void rtos_activate_task(rtos_task_handle_t task)
 {
 	task_list.tasks[task].state = S_READY;
 	dispatcher(kFromNormalExec);
 }
-
+```
+```
 static void dispatcher(task_switch_type_e type)
 {
 	rtos_task_handle_t next_task = task_list.nTasks-1;
@@ -81,7 +87,8 @@ static void dispatcher(task_switch_type_e type)
 		context_switch(type);
 	}
 }
-
+```
+```
 FORCE_INLINE static void context_switch(task_switch_type_e type)
 {
 	register uint32_t r0 asm("sp");
@@ -111,7 +118,8 @@ FORCE_INLINE static void context_switch(task_switch_type_e type)
 	task_list.tasks[task_list.current_task].state = S_RUNNING;
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
-
+```
+```
 static void activate_waiting_tasks()
 {
 	for(uint8_t i = 0; i < task_list.nTasks; i++)
@@ -127,7 +135,8 @@ static void activate_waiting_tasks()
 		}
 	}
 }
-
+```
+```
 void SysTick_Handler(void)
 {
 
@@ -139,7 +148,8 @@ void SysTick_Handler(void)
 	reload_systick();
 	dispatcher(kFromISR);
 }
-
+```
+```
 void PendSV_Handler(void)
 {
 	  register int32_t r0 asm("r0");
@@ -148,3 +158,4 @@ void PendSV_Handler(void)
 	  r0 = (int32_t) task_list.tasks[task_list.current_task].sp;
 	  asm("mov r7,r0");
 }
+```
