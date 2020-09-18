@@ -52,7 +52,7 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,rtos_a
 }
 ```
 ## Obtención del valor del reloj del sistema
-Se retorna el valor del tick global ubicado dentro de task list
+* Se retorna el valor del tick global ubicado dentro de task list
 ```
 rtos_tick_t rtos_get_clock(void)
 {
@@ -71,6 +71,9 @@ void rtos_delay(rtos_tick_t ticks)
 	dispatcher(kFromNormalExec);
 }
 ```
+## Suspender la tarea
+* Se asigna el estado de la tarea a suspendido.
+* Se manda a llamar el calendarizador con modo de ejecución normal.
 ```
 void rtos_suspend_task(void)
 {
@@ -78,6 +81,9 @@ void rtos_suspend_task(void)
 	dispatcher(kFromNormalExec);
 }
 ```
+## Activar la tarea
+* Se asigna el estado de la tarea a listo.
+* Se llama al calendarizador con modo de ejecución normal.
 ```
 void rtos_activate_task(rtos_task_handle_t task)
 {
@@ -85,6 +91,7 @@ void rtos_activate_task(rtos_task_handle_t task)
 	dispatcher(kFromNormalExec);
 }
 ```
+##
 ```
 static void dispatcher(task_switch_type_e type)
 {
