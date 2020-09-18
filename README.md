@@ -51,12 +51,18 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,rtos_a
 	return -1;
 }
 ```
+## Obtención del valor del reloj del sistema
+Se retorna el valor del tick global ubicado dentro de task list
 ```
 rtos_tick_t rtos_get_clock(void)
 {
 	return task_list.global_tick;
 }
 ```
+## Delay para dormir la tarea durante un tiempo
+* Se pone en modo de espera la tarea actual.
+* Ae le asigna el numero de ticks con los que se llamó a la función.
+* Se llama al calendarizador en modo de ejecución normal.
 ```
 void rtos_delay(rtos_tick_t ticks)
 {
