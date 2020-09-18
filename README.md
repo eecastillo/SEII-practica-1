@@ -1,17 +1,12 @@
 # SEII-practica-1
 void rtos_start_scheduler(void)
 {
-#ifdef RTOS_ENABLE_IS_ALIVE
-	init_is_alive();
-#endif
-
 	task_list.global_tick = 0;
 	task_list.current_task = -1;
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk
 	        | SysTick_CTRL_ENABLE_Msk;
 	reload_systick();
 	rtos_create_task(idle_task,0,kAutoStart);
-//	NVIC_SetPriority(PendSV_IRQn, 0xFF);/////////////////////
 	//reload_systick();
 	for (;;)
 		;
@@ -64,17 +59,6 @@ void rtos_activate_task(rtos_task_handle_t task)
 {
 	task_list.tasks[task].state = S_READY;
 	dispatcher(kFromNormalExec);
-}
-
-/**********************************************************************************/
-// Local methods implementation
-/**********************************************************************************/
-
-static void reload_systick(void)
-{
-	SysTick->LOAD = USEC_TO_COUNT(RTOS_TIC_PERIOD_IN_US,
-	        CLOCK_GetCoreSysClkFreq());
-	SysTick->VAL = 0;
 }
 
 static void dispatcher(task_switch_type_e type)
@@ -143,22 +127,6 @@ static void activate_waiting_tasks()
 		}
 	}
 }
-
-/**********************************************************************************/
-// IDLE TASK
-/**********************************************************************************/
-
-static void idle_task(void)
-{
-	for (;;)
-	{
-		//PRINTF("pelaste");
-	}
-}
-
-/****************************************************/
-// ISR implementation
-/****************************************************/
 
 void SysTick_Handler(void)
 {
