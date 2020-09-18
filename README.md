@@ -4,7 +4,7 @@ Dentro de esta funcion se añadió:
 * Configurar el reloj global a 0
 * Crear la tarea correspondiente al idle_task
 * Asignar el current_task a -1 para uso dentro del calendarizador
-```
+
 void rtos_start_scheduler(void)
 {
 	task_list.global_tick = 0;
@@ -17,7 +17,7 @@ void rtos_start_scheduler(void)
 	for (;;)
 		;
 }
-```
+
 ## Creación de tareas
 Se asignan las prioridades correspondientes a la nueva tarea a crear
 * Apuntador a la tarea
@@ -26,7 +26,7 @@ Se asignan las prioridades correspondientes a la nueva tarea a crear
 * Se asigna el stack
 * Local tick se asigna a 0
 * Se suma el numero de nTasks
-```
+
 rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,rtos_autostart_e autostart)
 {
 	if(RTOS_MAX_NUMBER_OF_TASKS > task_list.nTasks)
@@ -50,35 +50,46 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,rtos_a
 	}
 	return -1;
 }
-```
-```
+
+## Obtención del valor del reloj del sistema
+* Se retorna el valor del tick global ubicado dentro de task list
+
 rtos_tick_t rtos_get_clock(void)
 {
 	return task_list.global_tick;
 }
-```
-```
+
+## Delay para dormir la tarea durante un tiempo
+* Se pone en modo de espera la tarea actual.
+* Ae le asigna el numero de ticks con los que se llamó a la función.
+* Se llama al calendarizador en modo de ejecución normal.
+
 void rtos_delay(rtos_tick_t ticks)
 {
 	task_list.tasks[task_list.current_task].state = S_WAITING;
 	task_list.tasks[task_list.current_task].local_tick = ticks;
 	dispatcher(kFromNormalExec);
 }
-```
-```
+
+## Suspender la tarea
+* Se asigna el estado de la tarea a suspendido.
+* Se manda a llamar el calendarizador con modo de ejecución normal.
+
 void rtos_suspend_task(void)
 {
 	task_list.tasks[task_list.current_task].state = S_SUSPENDED;
 	dispatcher(kFromNormalExec);
 }
-```
-```
+
+## Activar la tarea
+* Se asigna el estado de la tarea a listo.
+* Se llama al calendarizador con modo de ejecución normal.
+
 void rtos_activate_task(rtos_task_handle_t task)
 {
 	task_list.tasks[task].state = S_READY;
 	dispatcher(kFromNormalExec);
 }
-```
 ```
 static void dispatcher(task_switch_type_e type)
 {
