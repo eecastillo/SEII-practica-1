@@ -11,6 +11,7 @@
 #include "rtos.h"
 #include "rtos_config.h"
 #include "clock_config.h"
+#include "fsl_debug_console.h"
 
 #ifdef RTOS_ENABLE_IS_ALIVE
 #include "fsl_gpio.h"
@@ -105,7 +106,7 @@ void rtos_start_scheduler(void)
 	        | SysTick_CTRL_ENABLE_Msk;
 	reload_systick();
 	rtos_create_task(idle_task,0,kAutoStart);
-	NVIC_SetPriority(PendSV_IRQn, 0xFF);
+	//NVIC_SetPriority(PendSV_IRQn, 0xFF);/////////////////////
 	//reload_systick();
 	for (;;)
 		;
@@ -131,7 +132,7 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,
 		task_list.tasks[task_list.nTasks].stack[RTOS_STACK_SIZE - STACK_PSR_OFFSET] = (STACK_PSR_DEFAULT);
 		task_list.tasks[task_list.nTasks].local_tick = 0;
 		task_list.nTasks++;
-		return task_list.nTasks;
+		return (task_list.nTasks);
 	}
 	return -1;
 }
@@ -174,8 +175,14 @@ static void reload_systick(void)
 static void dispatcher(task_switch_type_e type)
 {
 	rtos_task_handle_t next_task = task_list.nTasks-1;
-	 uint8_t maxPriority = 0;
-
+	 int8_t maxPriority = 0;
+	for (uint8_t i = 0; i<task_list.nTasks; i++)
+	{
+		if(maxPriority > task_list.tasks[i].priority)
+		{
+			maxPriority = task_list.tasks[i].priority;
+		}
+	}
 	for(uint8_t i = 0; i < task_list.nTasks; i++)
 	{
 		if(maxPriority < task_list.tasks[i].priority && (S_READY == task_list.tasks[i].state || S_RUNNING == task_list.tasks[i].state))
@@ -188,7 +195,7 @@ static void dispatcher(task_switch_type_e type)
 	task_list.next_task = next_task;
 	if(task_list.next_task != task_list.current_task)
 	{
-		context_switch(kFromNormalExec);
+		context_switch(type);
 	}
 }
 
@@ -201,14 +208,16 @@ FORCE_INLINE static void context_switch(task_switch_type_e type)
 	{
 		asm("mov r0, r7");
 		task_list.tasks[task_list.current_task].sp = (uint32_t*) r0;
-		if(kFromNormalExec == type)
+		if(kFromISR == type)
 		{
-			task_list.tasks[task_list.current_task].sp -= (7);
-			//task_list.tasks[task_list.current_task].state = S_READY;
+			task_list.tasks[task_list.current_task].sp -= (-9);
+		//task_list.tasks[task_list.current_task].sp -=STACK_FRAME_SIZE+1;
+			task_list.tasks[task_list.current_task].state = S_READY;
 		}
 		else
 		{
 			task_list.tasks[task_list.current_task].sp -= (9);
+			//task_list.tasks[task_list.current_task].sp -= -(STACK_FRAME_SIZE-1)-2;
 		}
 	}
 	else
@@ -230,7 +239,7 @@ static void activate_waiting_tasks()
 			if(0 == task_list.tasks[i].local_tick)
 			{
 				//task_list.tasks[i].state = S_READY;
-				rtos_activate_task(i);
+				task_list.tasks[i].state = S_READY;
 			}
 		}
 	}
@@ -244,7 +253,7 @@ static void idle_task(void)
 {
 	for (;;)
 	{
-
+		//PRINTF("pelaste");
 	}
 }
 

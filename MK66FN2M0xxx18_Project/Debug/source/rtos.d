@@ -12,6 +12,10 @@ source/rtos.o source/rtos.d: ../source/rtos.c ../source/rtos.h \
  /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/device/MK66F18_features.h \
  /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/drivers/fsl_clock.h \
  /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/drivers/fsl_common.h \
+ /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/utilities/fsl_debug_console.h \
+ /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/component/serial_manager/serial_manager.h \
+ /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/component/serial_manager/serial_port_uart.h \
+ /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/component/uart/uart.h \
  /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/drivers/fsl_gpio.h \
  /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/drivers/fsl_port.h
 
@@ -42,6 +46,14 @@ source/rtos.o source/rtos.d: ../source/rtos.c ../source/rtos.h \
 /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/drivers/fsl_clock.h:
 
 /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/drivers/fsl_common.h:
+
+/home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/utilities/fsl_debug_console.h:
+
+/home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/component/serial_manager/serial_manager.h:
+
+/home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/component/serial_manager/serial_port_uart.h:
+
+/home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/component/uart/uart.h:
 
 /home/ethan/Documents/SEI2/Practica1/MK66FN2M0xxx18_Project/drivers/fsl_gpio.h:
 
