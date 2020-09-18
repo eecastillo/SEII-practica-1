@@ -5,7 +5,7 @@ Dentro de esta funcion se añadió:
 * Crear la tarea correspondiente al idle_task
 * Asignar el current_task a -1 para uso dentro del calendarizador
 
-
+```
 void rtos_start_scheduler(void)
 {
 	task_list.global_tick = 0;
@@ -18,7 +18,7 @@ void rtos_start_scheduler(void)
 	for (;;)
 		;
 }
-
+```
 ## Creación de tareas
 Se asignan las prioridades correspondientes a la nueva tarea a crear
 * Apuntador a la tarea
