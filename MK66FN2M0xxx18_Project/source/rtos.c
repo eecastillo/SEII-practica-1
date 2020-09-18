@@ -175,28 +175,22 @@ static void reload_systick(void)
 static void dispatcher(task_switch_type_e type)
 {
 	rtos_task_handle_t next_task = task_list.nTasks-1;
-	 int8_t maxPriority = 0;
-	for (uint8_t i = 0; i<task_list.nTasks; i++)
-	{
-		if(maxPriority > task_list.tasks[i].priority)
-		{
-			maxPriority = task_list.tasks[i].priority;
-		}
-	}
-	for(uint8_t i = 0; i < task_list.nTasks; i++)
-	{
-		if(maxPriority < task_list.tasks[i].priority && (S_READY == task_list.tasks[i].state || S_RUNNING == task_list.tasks[i].state))
-		{
-			maxPriority = task_list.tasks[i].priority;
-			next_task = i;
-		}
-	}
+		 int8_t maxPriority = -1;
 
-	task_list.next_task = next_task;
-	if(task_list.next_task != task_list.current_task)
-	{
-		context_switch(type);
-	}
+		for(uint8_t i = 0; i < task_list.nTasks; i++)
+		{
+			if(maxPriority < task_list.tasks[i].priority && (S_READY == task_list.tasks[i].state || S_RUNNING == task_list.tasks[i].state))
+			{
+				maxPriority = task_list.tasks[i].priority;
+				next_task = i;
+			}
+		}
+
+		task_list.next_task = next_task;
+		if(task_list.next_task != task_list.current_task)
+		{
+			context_switch(type);
+		}
 }
 
 FORCE_INLINE static void context_switch(task_switch_type_e type)

@@ -3667,3 +3667,9 @@ Caused by: java.lang.NullPointerException
 
 !ENTRY com.nxp.mcuxpresso.core.debug 1 0 2020-09-17 21:43:23.844
 !MESSAGE Telnet session connected on port 2333->48290 @ 127.0.0.1
+
+!ENTRY com.nxp.mcuxpresso.trace.core 1 0 2020-09-17 21:56:17.773
+!MESSAGE SWO session connected on port 2332->40122 @ 127.0.0.1
+
+!ENTRY com.nxp.mcuxpresso.core.debug 1 0 2020-09-17 21:56:18.737
+!MESSAGE Telnet session connected on port 2333->48332 @ 127.0.0.1
