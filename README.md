@@ -51,18 +51,12 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,rtos_a
 	return -1;
 }
 ```
-## Obtención del valor del reloj del sistema
-* Se retorna el valor del tick global ubicado dentro de task list
 ```
 rtos_tick_t rtos_get_clock(void)
 {
 	return task_list.global_tick;
 }
 ```
-## Delay para dormir la tarea durante un tiempo
-* Se pone en modo de espera la tarea actual.
-* Ae le asigna el numero de ticks con los que se llamó a la función.
-* Se llama al calendarizador en modo de ejecución normal.
 ```
 void rtos_delay(rtos_tick_t ticks)
 {
@@ -71,9 +65,6 @@ void rtos_delay(rtos_tick_t ticks)
 	dispatcher(kFromNormalExec);
 }
 ```
-## Suspender la tarea
-* Se asigna el estado de la tarea a suspendido.
-* Se manda a llamar el calendarizador con modo de ejecución normal.
 ```
 void rtos_suspend_task(void)
 {
@@ -81,9 +72,6 @@ void rtos_suspend_task(void)
 	dispatcher(kFromNormalExec);
 }
 ```
-## Activar la tarea
-* Se asigna el estado de la tarea a listo.
-* Se llama al calendarizador con modo de ejecución normal.
 ```
 void rtos_activate_task(rtos_task_handle_t task)
 {
@@ -91,7 +79,6 @@ void rtos_activate_task(rtos_task_handle_t task)
 	dispatcher(kFromNormalExec);
 }
 ```
-##
 ```
 static void dispatcher(task_switch_type_e type)
 {
@@ -114,6 +101,11 @@ static void dispatcher(task_switch_type_e type)
 	}
 }
 ```
+## Cambio de contexto
+Esta funcion lo que realiza es cambiar el contexto cuando se requiere. Para esto se tiene que revisar:
+* Que no sea la primer tarea, si no lo es entonces se guarda el stack pointer de la tarea actual.
+* Revisar si vienes de la tarea o de la ISR y dependiendo de eso hacer el manejor del stack pointer correspondiente
+* Luego se cambia la tarea actual por la siguiente, se cambia su estado a running, y se invoca un cambio de contexto
 ```
 FORCE_INLINE static void context_switch(task_switch_type_e type)
 {
@@ -145,6 +137,9 @@ FORCE_INLINE static void context_switch(task_switch_type_e type)
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
 ```
+## Activar las tareas que se fueron a espera
+En esta funcion se busca en toda la lista de tareas para ver cuales estan en espera. En caso de que la tarea esta en espera, se disminuye en uno su reloj local.
+Despues de esto se revisa si el reloj local de esta tarea es 0, y en caso de si serlo, se ejecuta esta tarea
 ```
 static void activate_waiting_tasks()
 {
@@ -155,13 +150,17 @@ static void activate_waiting_tasks()
 			task_list.tasks[i].local_tick--;
 			if(0 == task_list.tasks[i].local_tick)
 			{
-				//task_list.tasks[i].state = S_READY;
-				rtos_activate_task(i);
+				task_list.tasks[i].state = S_READY;
 			}
 		}
 	}
 }
 ```
+## Interrupcion periodica del sistema operativo
+Esta funcion lo que realiza es:
+* Aumenta el reloj global en 1
+* Llama a la funcion waiting task
+* Llama al dispatcher desde la ISR
 ```
 void SysTick_Handler(void)
 {
@@ -175,6 +174,8 @@ void SysTick_Handler(void)
 	dispatcher(kFromISR);
 }
 ```
+## Interrupcion periodica del sistema operativo
+En esta funcion se carga el stack pointer del procesador con el tack pointer de la tarea que se esta ejecutando en ese momento
 ```
 void PendSV_Handler(void)
 {
