@@ -1,4 +1,9 @@
 # SEII-practica-1
+## Inicialización del sistema operativo
+Dentro de esta funcion se añadió:
+* Configurar el reloj global a 0
+* Crear la tarea correspondiente al idle_task
+* Asignar el current_task a -1 para uso dentro del calendarizador
 ```
 void rtos_start_scheduler(void)
 {
@@ -13,6 +18,14 @@ void rtos_start_scheduler(void)
 		;
 }
 ```
+## Creación de tareas
+Se asignan las prioridades correspondientes a la nueva tarea a crear
+* Apuntador a la tarea
+* Prioridad de la tarea
+* Estado de la tarea dependiendo del parametro autostart
+* Se asigna el stack
+* Local tick se asigna a 0
+* Se suma el numero de nTasks
 ```
 rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,rtos_autostart_e autostart)
 {
