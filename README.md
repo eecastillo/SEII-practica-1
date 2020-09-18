@@ -92,6 +92,10 @@ void rtos_activate_task(rtos_task_handle_t task)
 	dispatcher(kFromNormalExec);
 }
 ```
+## Calendarización
+* Se asigna la tarea idle como la predeterminada
+* Mediante un ciclo se busca la tarea con mayor prioridad y que esté libre
+* Si la tarea encontrada es diferente a la actual se llama a un cambio de contexto y se le pasa el parametro de task_switch_type
 ```
 static void dispatcher(task_switch_type_e type)
 {
