@@ -247,7 +247,6 @@ static void idle_task(void)
 {
 	for (;;)
 	{
-		//PRINTF("pelaste");
 	}
 }
 
